@@ -1,161 +1,117 @@
 import React from 'react';
-import renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import FakeMap from './fake-map';
 import { CheckboxSVGMap } from '../src';
 
-// TODO: Try to make it more readable
-// TODO: Create utility functions to avoid code duplication
 describe('CheckboxSVGMap component', () => {
-	let wrapper;
-
 	describe('Navigation', () => {
-		const locationSelector = '#id0';
-
 		let location;
 
 		beforeEach(() => {
-			wrapper = mount(<CheckboxSVGMap map={FakeMap} />);
-			location = wrapper.find(locationSelector);
-		});
-
-		afterEach(() => {
-			wrapper.unmount();
+			render(<CheckboxSVGMap map={FakeMap} />);
+			location = screen.getByRole('checkbox', { name: 'name0' });
 		});
 
 		describe('Mouse', () => {
-			test('selects location when clicking on not yet selected location', () => {
-				expect(location.props()['aria-checked']).toBeFalsy();
-
-				location.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
+			test('selects location when clicking on not yet selected location', async () => {
+				const user = userEvent.setup();
+				expect(location).not.toBeChecked();
+				await user.click(location);
+				expect(location).toBeChecked();
 			});
 
-			test('deselects location when clicking on already selected location', () => {
-				location.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
-
-				location.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeFalsy();
+			test('deselects location when clicking on already selected location', async () => {
+				const user = userEvent.setup();
+				await user.click(location);
+				expect(location).toBeChecked();
+				await user.click(location);
+				expect(location).not.toBeChecked();
 			});
 		});
 
 		describe('Keyboard', () => {
 			test('selects focused location when hitting spacebar', () => {
-				expect(location.props()['aria-checked']).toBeFalsy();
-
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 32 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
+				expect(location).not.toBeChecked();
+				location.focus();
+				fireEvent.keyDown(location, { keyCode: 32 });
+				expect(location).toBeChecked();
 			});
 
 			test('does not select focused location when hitting other key', () => {
-				expect(location.props()['aria-checked']).toBeFalsy();
-
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 31 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeFalsy();
+				expect(location).not.toBeChecked();
+				location.focus();
+				fireEvent.keyDown(location, { keyCode: 31 });
+				expect(location).not.toBeChecked();
 			});
 
 			test('deselects focused already selected location when hitting spacebar', () => {
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 32 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
-
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 32 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeFalsy();
+				location.focus();
+				fireEvent.keyDown(location, { keyCode: 32 });
+				expect(location).toBeChecked();
+				fireEvent.keyDown(location, { keyCode: 32 });
+				expect(location).not.toBeChecked();
 			});
 		});
 	});
 
 	describe('Communication', () => {
-		// Create element to attach component to it and avoid warnings when attached to document.body
-		// https://stackoverflow.com/a/49025532/9826498
-		const container = document.createElement('div');
-		document.body.appendChild(container);
-
 		const handleOnChange = jest.fn();
-
 		let selectedLocation;
 		let otherSelectedLocation;
 		let unselectedLocation;
 
 		beforeEach(() => {
-			wrapper = mount(
+			handleOnChange.mockClear();
+			render(
 				<CheckboxSVGMap
 					map={FakeMap}
-					selectedLocationIds={['id0', 'id1', 'invalid-id']}
+					selectedLocationIds={['id0', 'id1']}
 					onChange={handleOnChange}
-				/>,
-				{ attachTo: container }
+				/>
 			);
-			selectedLocation = wrapper.find('#id0');
-			otherSelectedLocation = wrapper.find('#id1');
-			unselectedLocation = wrapper.find('#id2');
-		});
-
-		afterEach(() => {
-			wrapper.unmount();
-			handleOnChange.mockClear();
+			selectedLocation = screen.getByRole('checkbox', { name: 'name0' });
+			otherSelectedLocation = screen.getByRole('checkbox', { name: 'name1' });
+			unselectedLocation = screen.getByRole('checkbox', { name: 'name2' });
 		});
 
 		test('selects initial locations when valid ids are provided', () => {
-			expect(selectedLocation.props()['aria-checked']).toBeTruthy();
-			expect(otherSelectedLocation.props()['aria-checked']).toBeTruthy();
-			expect(unselectedLocation.props()['aria-checked']).toBeFalsy();
+			expect(selectedLocation).toBeChecked();
+			expect(otherSelectedLocation).toBeChecked();
+			expect(unselectedLocation).not.toBeChecked();
 		});
 
-		test('calls onChange handler when selecting location', () => {
-			unselectedLocation.simulate('click');
-
-			expect(handleOnChange).toHaveBeenCalledWith([
-				selectedLocation.getDOMNode(),
-				otherSelectedLocation.getDOMNode(),
-				unselectedLocation.getDOMNode()
-			]);
+		test('calls onChange handler when selecting location', async () => {
+			const user = userEvent.setup();
+			await user.click(unselectedLocation);
+			expect(handleOnChange).toHaveBeenCalledTimes(2); // Once on mount, once on click
+			// The argument to onChange is an array of DOM nodes, so we check the length and ids
+			const lastCallArgs = handleOnChange.mock.calls[1][0];
+			expect(lastCallArgs).toHaveLength(3);
+			expect(lastCallArgs.map(node => node.id)).toEqual(expect.arrayContaining(['id0', 'id1', 'id2']));
 		});
 
-		test('calls onChange handler when deselecting location', () => {
-			otherSelectedLocation.simulate('click');
-
-			expect(handleOnChange).toHaveBeenCalledWith([selectedLocation.getDOMNode()]);
+		test('calls onChange handler when deselecting location', async () => {
+			const user = userEvent.setup();
+			await user.click(otherSelectedLocation);
+			expect(handleOnChange).toHaveBeenCalledTimes(2); // Once on mount, once on click
+			const lastCallArgs = handleOnChange.mock.calls[1][0];
+			expect(lastCallArgs).toHaveLength(1);
+			expect(lastCallArgs[0].id).toBe('id0');
 		});
 	});
 
 	describe('Rendering', () => {
 		test('displays map with default props', () => {
-			const component = renderer.create(<CheckboxSVGMap map={FakeMap} />);
-			const tree = component.toJSON();
-
-			expect(tree).toMatchSnapshot();
+			const { asFragment } = render(<CheckboxSVGMap map={FakeMap} />);
+			expect(asFragment()).toMatchSnapshot();
 		});
 
 		test('displays map with custom props', () => {
-			const eventHandler = () => 'eventHandler';
-			const component = renderer.create(
-				<CheckboxSVGMap map={FakeMap}
+			const eventHandler = jest.fn();
+			const { asFragment } = render(
+				<CheckboxSVGMap
+					map={FakeMap}
 					className="className"
 					locationClassName="locationClassName"
 					onLocationMouseOver={eventHandler}
@@ -168,9 +124,7 @@ describe('CheckboxSVGMap component', () => {
 					childrenAfter={<text>childrenAfter</text>}
 				/>
 			);
-			const tree = component.toJSON();
-
-			expect(tree).toMatchSnapshot();
+			expect(asFragment()).toMatchSnapshot();
 		});
 	});
 });

@@ -1,6 +1,7 @@
 /*eslint-env node*/
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = (env, options) => {
 	return {
@@ -18,12 +19,6 @@ module.exports = (env, options) => {
 				exclude: /node_modules/,
 				use: [
 					'babel-loader',
-					{
-						loader: 'eslint-loader',
-						options: {
-							emitWarning: options.mode === 'development', // Avoid to block compilation when ESLint error
-						}
-					}
 				],
 			}, {
 				test: /\.scss$/,
@@ -33,7 +28,11 @@ module.exports = (env, options) => {
 				}, {
 					loader: 'css-loader'
 				}, {
-					loader: 'sass-loader'
+					loader: 'sass-loader',
+					options: {
+						api: 'modern-compiler',
+						implementation: require('sass'),
+					}
 				}]
 			}, {
 				test: /\.html$/,
@@ -53,6 +52,10 @@ module.exports = (env, options) => {
 			new HtmlWebPackPlugin({
 				template: './examples/src/index.html',
 				filename: './index.html'
+			}),
+			new ESLintPlugin({
+				extensions: ['js', 'jsx'],
+				emitWarning: options.mode === 'development',
 			})
 		]
 	};

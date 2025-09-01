@@ -1,145 +1,130 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SVGMap component Properties displays map with custom function location props 1`] = `
-<svg
-  aria-label="label"
-  className="svg-map"
-  role="none"
-  viewBox="viewBox"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <path
-    aria-label="name0-0"
-    className="locationClassName-0"
-    d="path0"
-    id="id0"
-    name="name0"
+<DocumentFragment>
+  <svg
+    aria-label="label"
+    class="svg-map"
     role="none"
-    tabIndex="locationTabIndex-0"
-  />
-  <path
-    aria-label="name1-1"
-    className="locationClassName-1"
-    d="path1"
-    id="id1"
-    name="name1"
-    role="none"
-    tabIndex="locationTabIndex-1"
-  />
-  <path
-    aria-label="name2-2"
-    className="locationClassName-2"
-    d="path2"
-    id="id2"
-    name="name2"
-    role="none"
-    tabIndex="locationTabIndex-2"
-  />
-</svg>
+    viewBox="viewBox"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      aria-label="name0-0"
+      class="locationClassName-0"
+      d="path0"
+      id="id0"
+      name="name0"
+      role="none"
+      tabindex="locationTabIndex-0"
+    />
+    <path
+      aria-label="name1-1"
+      class="locationClassName-1"
+      d="path1"
+      id="id1"
+      name="name1"
+      role="none"
+      tabindex="locationTabIndex-1"
+    />
+    <path
+      aria-label="name2-2"
+      class="locationClassName-2"
+      d="path2"
+      id="id2"
+      name="name2"
+      role="none"
+      tabindex="locationTabIndex-2"
+    />
+  </svg>
+</DocumentFragment>
 `;
 
 exports[`SVGMap component Properties displays map with custom props 1`] = `
-<svg
-  aria-label="label"
-  className="className"
-  role="role"
-  viewBox="viewBox"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <text>
-    childrenBefore
-  </text>
-  <path
-    aria-checked="isLocationSelected"
-    aria-label="name0"
-    className="locationClassName"
-    d="path0"
-    id="id0"
-    name="name0"
-    onBlur={[Function]}
-    onClick={[Function]}
-    onFocus={[Function]}
-    onKeyDown={[Function]}
-    onMouseMove={[Function]}
-    onMouseOut={[Function]}
-    onMouseOver={[Function]}
-    role="locationRole"
-    tabIndex="locationTabIndex"
-  />
-  <path
-    aria-checked="isLocationSelected"
-    aria-label="name1"
-    className="locationClassName"
-    d="path1"
-    id="id1"
-    name="name1"
-    onBlur={[Function]}
-    onClick={[Function]}
-    onFocus={[Function]}
-    onKeyDown={[Function]}
-    onMouseMove={[Function]}
-    onMouseOut={[Function]}
-    onMouseOver={[Function]}
-    role="locationRole"
-    tabIndex="locationTabIndex"
-  />
-  <path
-    aria-checked="isLocationSelected"
-    aria-label="name2"
-    className="locationClassName"
-    d="path2"
-    id="id2"
-    name="name2"
-    onBlur={[Function]}
-    onClick={[Function]}
-    onFocus={[Function]}
-    onKeyDown={[Function]}
-    onMouseMove={[Function]}
-    onMouseOut={[Function]}
-    onMouseOver={[Function]}
-    role="locationRole"
-    tabIndex="locationTabIndex"
-  />
-  <text>
-    childrenAfter
-  </text>
-</svg>
+<DocumentFragment>
+  <svg
+    aria-label="label"
+    class="className"
+    role="role"
+    viewBox="viewBox"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <text>
+      childrenBefore
+    </text>
+    <path
+      aria-checked="true"
+      aria-label="name0"
+      class="locationClassName"
+      d="path0"
+      id="id0"
+      name="name0"
+      role="locationRole"
+      tabindex="locationTabIndex"
+    />
+    <path
+      aria-checked="true"
+      aria-label="name1"
+      class="locationClassName"
+      d="path1"
+      id="id1"
+      name="name1"
+      role="locationRole"
+      tabindex="locationTabIndex"
+    />
+    <path
+      aria-checked="true"
+      aria-label="name2"
+      class="locationClassName"
+      d="path2"
+      id="id2"
+      name="name2"
+      role="locationRole"
+      tabindex="locationTabIndex"
+    />
+    <text>
+      childrenAfter
+    </text>
+  </svg>
+</DocumentFragment>
 `;
 
 exports[`SVGMap component Properties displays map with default props 1`] = `
-<svg
-  aria-label="label"
-  className="svg-map"
-  role="none"
-  viewBox="viewBox"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <path
-    aria-label="name0"
-    className="svg-map__location"
-    d="path0"
-    id="id0"
-    name="name0"
+<DocumentFragment>
+  <svg
+    aria-label="label"
+    class="svg-map"
     role="none"
-    tabIndex="0"
-  />
-  <path
-    aria-label="name1"
-    className="svg-map__location"
-    d="path1"
-    id="id1"
-    name="name1"
-    role="none"
-    tabIndex="0"
-  />
-  <path
-    aria-label="name2"
-    className="svg-map__location"
-    d="path2"
-    id="id2"
-    name="name2"
-    role="none"
-    tabIndex="0"
-  />
-</svg>
+    viewBox="viewBox"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      aria-label="name0"
+      class="svg-map__location"
+      d="path0"
+      id="id0"
+      name="name0"
+      role="none"
+      tabindex="0"
+    />
+    <path
+      aria-label="name1"
+      class="svg-map__location"
+      d="path1"
+      id="id1"
+      name="name1"
+      role="none"
+      tabindex="0"
+    />
+    <path
+      aria-label="name2"
+      class="svg-map__location"
+      d="path2"
+      id="id2"
+      name="name2"
+      role="none"
+      tabindex="0"
+    />
+  </svg>
+</DocumentFragment>
 `;

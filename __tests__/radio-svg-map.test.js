@@ -1,209 +1,137 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import renderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import FakeMap from './fake-map';
 import { RadioSVGMap } from '../src';
 
-// TODO: Try to make it more readable
-// TODO: Create utility functions to avoid code duplication
 describe('RadioSVGMap component', () => {
-	const locationSelector = '#id1';
-	const previousLocationSelector = '#id0';
-	const nextLocationSelector = '#id2';
-
-	let wrapper;
-	let location;
-	let previousLocation;
-	let nextLocation;
-
 	describe('Navigation', () => {
-		beforeEach(() => {
-			wrapper = mount(<RadioSVGMap map={FakeMap} />);
-			location = wrapper.find(locationSelector);
-			previousLocation = wrapper.find(previousLocationSelector);
-			nextLocation = wrapper.find(nextLocationSelector);
-		});
+		let location1;
+		let location2;
+		let location3;
 
-		afterEach(() => {
-			wrapper.unmount();
+		beforeEach(() => {
+			render(<RadioSVGMap map={FakeMap} />);
+			location1 = screen.getByRole('radio', { name: 'name0' });
+			location2 = screen.getByRole('radio', { name: 'name1' });
+			location3 = screen.getByRole('radio', { name: 'name2' });
 		});
 
 		describe('Mouse', () => {
-			test('selects location when clicking on not yet selected location', () => {
-				expect(location.props()['aria-checked']).toBeFalsy();
-
-				location.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
+			test('selects location when clicking on not yet selected location', async () => {
+				const user = userEvent.setup();
+				expect(location1).not.toBeChecked();
+				await user.click(location1);
+				expect(location1).toBeChecked();
 			});
 
-			test('does not deselect location when clicking on already selected location', () => {
-				location.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
-
-				location.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
+			test('does not deselect location when clicking on already selected location', async () => {
+				const user = userEvent.setup();
+				await user.click(location1);
+				expect(location1).toBeChecked();
+				await user.click(location1);
+				expect(location1).toBeChecked();
 			});
 
-			test('selects new location and deselects former selected when clicking on new location', () => {
-				location.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
+			test('selects new location and deselects former selected when clicking on new location', async () => {
+				const user = userEvent.setup();
+				await user.click(location1);
+				expect(location1).toBeChecked();
+				expect(location2).not.toBeChecked();
 
-				expect(location.props()['aria-checked']).toBeTruthy();
-				expect(previousLocation.props()['aria-checked']).toBeFalsy();
-
-				previousLocation.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-				previousLocation = wrapper.find(previousLocationSelector);
-
-				expect(location.props()['aria-checked']).toBeFalsy();
-				expect(previousLocation.props()['aria-checked']).toBeTruthy();
+				await user.click(location2);
+				expect(location1).not.toBeChecked();
+				expect(location2).toBeChecked();
 			});
 
-			test('makes location focusable when selected', () => {
-				expect(location.props()['tabIndex']).toEqual('-1');
+			test('makes location focusable when selected', async () => {
+				const user = userEvent.setup();
+				// Initially, only the first location is focusable
+				expect(location1).toHaveAttribute('tabindex', '0');
+				expect(location2).toHaveAttribute('tabindex', '-1');
 
-				location.simulate('click');
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['tabIndex']).toEqual('0');
+				await user.click(location2);
+				expect(location1).toHaveAttribute('tabindex', '-1');
+				expect(location2).toHaveAttribute('tabindex', '0');
 			});
 		});
 
 		describe('Keyboard', () => {
 			test('selects focused not yet selected location when hitting spacebar', () => {
-				expect(location.props()['aria-checked']).toBeFalsy();
-
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 32 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
+				expect(location2).not.toBeChecked();
+				location2.focus();
+				fireEvent.keyDown(location2, { keyCode: 32 });
+				expect(location2).toBeChecked();
 			});
 
 			test('does not deselect focused already selected location when hitting spacebar', () => {
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 32 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
-
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 32 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-
-				expect(location.props()['aria-checked']).toBeTruthy();
+				location2.focus();
+				fireEvent.keyDown(location2, { keyCode: 32 });
+				expect(location2).toBeChecked();
+				fireEvent.keyDown(location2, { keyCode: 32 });
+				expect(location2).toBeChecked();
 			});
 
-			test('selects next/first location when hitting down/right arrow', () => {
-				expect(location.props()['aria-checked']).toBeFalsy();
-				expect(nextLocation.props()['aria-checked']).toBeFalsy();
-
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 39 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-				nextLocation = wrapper.find(nextLocationSelector);
-
-				expect(location.props()['aria-checked']).toBeFalsy();
-				expect(nextLocation.props()['aria-checked']).toBeTruthy();
+			test('selects next location when hitting down/right arrow', () => {
+				location1.focus();
+				fireEvent.keyDown(location1, { keyCode: 40 }); // ArrowDown
+				expect(location2).toBeChecked();
+				fireEvent.keyDown(location2, { keyCode: 39 }); // ArrowRight
+				expect(location3).toBeChecked();
 			});
 
-			test('selects previous/last location when hitting up/left arrow', () => {
-				expect(location.props()['aria-checked']).toBeFalsy();
-				expect(previousLocation.props()['aria-checked']).toBeFalsy();
-
-				location.simulate('focus');
-				location.simulate('keydown', { keyCode: 37 });
-				wrapper.update();
-				location = wrapper.find(locationSelector);
-				previousLocation = wrapper.find(previousLocationSelector);
-
-				expect(location.props()['aria-checked']).toBeFalsy();
-				expect(previousLocation.props()['aria-checked']).toBeTruthy();
+			test('selects previous location when hitting up/left arrow', () => {
+				location1.focus();
+				fireEvent.keyDown(location1, { keyCode: 38 }); // ArrowUp
+				expect(location3).toBeChecked();
+				fireEvent.keyDown(location3, { keyCode: 37 }); // ArrowLeft
+				expect(location2).toBeChecked();
 			});
 		});
 	});
 
 	describe('Communication', () => {
-		// Create element to attach component to it and avoid warnings when attached to document.body
-		// https://stackoverflow.com/a/49025532/9826498
-		const container = document.createElement('div');
-		document.body.appendChild(container);
-
 		const handleOnChange = jest.fn();
 
 		beforeEach(() => {
-			wrapper = mount(
-				<RadioSVGMap
-					map={FakeMap}
-					selectedLocationId="id1"
-					onChange={handleOnChange}
-				/>,
-				{ attachTo: container }
-			);
-			location = wrapper.find(locationSelector);
-			nextLocation = wrapper.find(nextLocationSelector);
-		});
-
-		afterEach(() => {
-			wrapper.unmount();
 			handleOnChange.mockClear();
 		});
 
 		test('selects initial location when id is provided', () => {
-			expect(location.props()['aria-checked']).toBeTruthy();
+			render(<RadioSVGMap map={FakeMap} selectedLocationId="id1" />);
+			const location2 = screen.getByRole('radio', { name: 'name1' });
+			expect(location2).toBeChecked();
 		});
 
-		test('calls onChange handler when selecting location', () => {
-			nextLocation.simulate('click');
-
-			expect(handleOnChange).toHaveBeenCalledWith(nextLocation.getDOMNode());
+		test('calls onChange handler when selecting location', async () => {
+			const user = userEvent.setup();
+			render(<RadioSVGMap map={FakeMap} onChange={handleOnChange} />);
+			const location2 = screen.getByRole('radio', { name: 'name1' });
+			await user.click(location2);
+			expect(handleOnChange).toHaveBeenCalledTimes(1);
+			expect(handleOnChange.mock.calls[0][0].id).toBe('id1');
 		});
 
-		test('does not call onChange handler when clicking on already selected location', () => {
-			location.simulate('click');
-
-			expect(handleOnChange).toHaveBeenCalledTimes(0);
+		test('does not call onChange handler when clicking on already selected location', async () => {
+			const user = userEvent.setup();
+			render(<RadioSVGMap map={FakeMap} selectedLocationId="id1" onChange={handleOnChange} />);
+			const location2 = screen.getByRole('radio', { name: 'name1' });
+			await user.click(location2);
+			expect(handleOnChange).toHaveBeenCalledTimes(1); // Only called on mount
 		});
 	});
 
 	describe('Rendering', () => {
-		beforeAll(() => {
-			// Mock ReactDOM to avoid error
-			ReactDOM.findDOMNode = jest.fn(
-				() => ({
-					getElementsByTagName: jest.fn(() => ([]))
-				})
-			);
-		});
-
 		test('displays map with default props', () => {
-			const component = renderer.create(<RadioSVGMap map={FakeMap} />);
-			const tree = component.toJSON();
-
-			expect(tree).toMatchSnapshot();
+			const { asFragment } = render(<RadioSVGMap map={FakeMap} />);
+			expect(asFragment()).toMatchSnapshot();
 		});
 
 		test('displays map with custom props', () => {
-			const eventHandler = () => 'eventHandler';
-			const component = renderer.create(
-				<RadioSVGMap map={FakeMap}
+			const eventHandler = jest.fn();
+			const { asFragment } = render(
+				<RadioSVGMap
+					map={FakeMap}
 					className="className"
 					locationClassName="locationClassName"
 					onLocationMouseOver={eventHandler}
@@ -216,9 +144,7 @@ describe('RadioSVGMap component', () => {
 					childrenAfter={<text>childrenAfter</text>}
 				/>
 			);
-			const tree = component.toJSON();
-
-			expect(tree).toMatchSnapshot();
+			expect(asFragment()).toMatchSnapshot();
 		});
 	});
 });
