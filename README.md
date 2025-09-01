@@ -26,6 +26,10 @@ _A set of React.js components to display an interactive SVG map._
 
 ## Usage
 
+### :warning: Breaking change from v2
+
+This version of the package is compatible with React 19 and has been migrated from Enzyme to React Testing Library.
+
 ### :warning: Breaking change from v1
 
 **This package does not include maps anymore!**
@@ -44,7 +48,7 @@ This is the base component to display an SVG map.
 
 ```javascript
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import Taiwan from "@svg-maps/taiwan";
 import { SVGMap } from "react-svg-map";
 import "react-svg-map/lib/index.css";
@@ -59,7 +63,9 @@ class App extends React.Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById("app"));
+const container = document.getElementById("app");
+const root = createRoot(container);
+root.render(<App />);
 ```
 
 #### API
@@ -95,7 +101,7 @@ It is based on this [WAI-ARIA example](https://www.w3.org/TR/wai-aria-practices/
 
 ```javascript
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import Taiwan from "@svg-maps/taiwan";
 import { CheckboxSVGMap } from "react-svg-map";
 import "react-svg-map/lib/index.css";
@@ -110,7 +116,9 @@ class App extends React.Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById("app"));
+const container = document.getElementById("app");
+const root = createRoot(container);
+root.render(<App />);
 ```
 
 #### API
@@ -142,7 +150,7 @@ It is based on this [WAI-ARIA example](https://www.w3.org/TR/wai-aria-practices/
 
 ```javascript
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import Taiwan from "@svg-maps/taiwan";
 import { RadioSVGMap } from "react-svg-map";
 import "react-svg-map/lib/index.css";
@@ -157,7 +165,9 @@ class App extends React.Component {
   }
 }
 
-ReactDOM.render(<App />, document.getElementById("app"));
+const container = document.getElementById("app");
+const root = createRoot(container);
+root.render(<App />);
 ```
 
 #### API
@@ -191,8 +201,8 @@ You can modify existing maps or create your own.
 #### Modify a map
 
 1. Import the map to modify
-1. Create a new object from this map
-1. Pass this new object as `map` prop of `<SVGMap />` component
+2. Create a new object from this map
+3. Pass this new object as `map` prop of `<SVGMap />` component
 
 ```javascript
 import React from "react";
